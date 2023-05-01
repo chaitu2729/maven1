@@ -1,0 +1,47 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('continuousDownload')
+        {
+            steps
+            {
+             git 'https://github.com/intelliqittrainings/maven.git'   
+            }
+        }
+       stage('continuesBuild') 
+       {
+           steps
+           {
+               sh 'mvn package'
+           }
+       }
+       stage('continuesDeployment')
+       {
+           steps
+           {
+               sh 'scp /var/lib/jenkins/workspace/declartive/webapp/target/webapp.war ubuntu@172.31.18.100:/var/lib/tomcat9/webapps/testapp1.war'
+               
+                
+           }
+       }
+       stage('continuous testing')
+       {
+           steps
+           {
+               git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+               sh 'java -jar /var/lib/jenkins/workspace/declartive/testing.jar'
+           }
+       }
+       stage('continuous Delivery')
+       {
+           steps
+           {
+               input 'need from approval  to manikanta'
+             sh 'scp /var/lib/jenkins/workspace/declartive/webapp/target/webapp.war ubuntu@172.31.30.2:/var/lib/tomcat9/webapps/prodapp1.war'  
+           }
+       }
+    }
+    
+}
